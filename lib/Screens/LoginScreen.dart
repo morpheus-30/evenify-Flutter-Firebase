@@ -18,8 +18,8 @@ class _LoginScreenState extends State<LoginScreen> {
     TextEditingController emailcontroller = TextEditingController();
     TextEditingController passwordcontroller = TextEditingController();
     final _auth = FirebaseAuth.instance;
-    String password = "naksh9";
-    String email = "nakshatrachandna7@gmail.com";
+    String password = "123456";
+    String email = "nakshatrachandna@gmail.com";
     return Scaffold(
       backgroundColor: Colors.black,
       resizeToAvoidBottomInset: false,

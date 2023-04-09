@@ -6,8 +6,12 @@ import 'package:temp_flutter_proj/constants.dart';
 import "package:sizer/sizer.dart";
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CreateEventFinalScreen extends StatelessWidget {
+  var _firestore = FirebaseFirestore.instance;
+  CreateEventFinalScreen(this.id);
+  String id;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +48,7 @@ class CreateEventFinalScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("123456",
+                Text(id,
                     style: textStyle.copyWith(
                         fontSize: 40.sp,
                         color: Colors.white,
@@ -56,7 +60,7 @@ class CreateEventFinalScreen extends StatelessWidget {
                 NeumorphicButton(
                   onPressed: () async {
                     await Clipboard.setData(
-                        ClipboardData(text: "khali text h bhai"));
+                        ClipboardData(text: "${id}"));
                     print("copied successfully");
                   },
                   style: NeumorphicStyle(
@@ -85,7 +89,23 @@ class CreateEventFinalScreen extends StatelessWidget {
               width: 40.w,
               child: NeumorphicButton(
                 onPressed: () async {
-                  await Share.share("""Hey, you've been invited to "Name of the Event" by Nakshatra on Evenify. You can join it by entering the code ${123456} in the app. Download the app from the link below:""");
+                  var reference = await _firestore.collection("Users").doc("usermail@gmail.com").collection("MyEvents").doc(id).get();
+                  var referenceData = reference.data();
+                  var email = referenceData!["email"];
+                  // print(email);
+                  var newmail="";
+                  for(int i=0;i<email.length;i++){
+                    if(email[i]=="@"){
+                      break;
+                    }
+                    else{
+                      newmail = newmail + email[i];
+                    }
+                  }
+                  print(newmail);
+
+                  
+                  await Share.share("""Hey, you've been invited to ${referenceData["eventName"]} by ${newmail} on Evenify. You can join it by entering the code ${id} in the app. Download the app from the link below:""");
                 },
                 style: NeumorphicStyle(
                   shape: NeumorphicShape.flat,

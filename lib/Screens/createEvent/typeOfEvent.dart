@@ -1,19 +1,19 @@
 // import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:temp_flutter_proj/Screens/createEvent/FillEventDetails.dart';
 // import 'package:iconsax/iconsax.dart';
 import 'package:temp_flutter_proj/constants.dart';
 // import 'package:contacts_service/contacts_service.dart';
 import 'package:sizer/sizer.dart';
 import 'package:temp_flutter_proj/components/iconButton.dart';
-
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 class TypeOfEvent extends StatefulWidget {
   @override
   State<TypeOfEvent> createState() => _TypeOfEventState();
 }
-
 class _TypeOfEventState extends State<TypeOfEvent> {
+  String type = "";
   bool showOthersInput = false;
   @override
   Widget build(BuildContext context) {
@@ -69,7 +69,9 @@ class _TypeOfEventState extends State<TypeOfEvent> {
                             hintStyle:
                                 textStyle.copyWith(color: Colors.white60),
                           ),
-                          onChanged: (value) {},
+                          onChanged: (value) {
+                            type = value;
+                          },
                         ),
                       ),
                     ),
@@ -83,25 +85,57 @@ class _TypeOfEventState extends State<TypeOfEvent> {
                 crossAxisCount: 2,
                 children: <Widget>[
                   TypeOfEventCard(
+                    contentColor:
+                        type == "Birthday" ? Colors.black : Colors.white,
+                    backgroundColor:
+                        type == "Birthday" ? Colors.white : Colors.black,
                     icon: FontAwesomeIcons.cakeCandles,
                     text: "Birthday",
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        showOthersInput = false;
+                        type = "Birthday";
+                      });
+                    },
                   ),
                   TypeOfEventCard(
+                    contentColor:
+                        type == "Celebration" ? Colors.black : Colors.white,
+                    backgroundColor:
+                        type == "Celebration" ? Colors.white : Colors.black,
                     icon: FontAwesomeIcons.champagneGlasses,
                     text: "Celebration",
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        showOthersInput = false;
+                        type = "Celebration";
+                      });
+                    },
                   ),
                   TypeOfEventCard(
+                    contentColor:
+                        type == "Get Together" ? Colors.black : Colors.white,
+                    backgroundColor:
+                        type == "Get Together" ? Colors.white : Colors.black,
                     icon: FontAwesomeIcons.peopleGroup,
                     text: "Get Together",
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        showOthersInput = false;
+                        type = "Get Together";
+                      });
+                    },
                   ),
                   TypeOfEventCard(
+                    contentColor:
+                        type == "Others" ? Colors.black : Colors.white,
+                    backgroundColor:
+                        type == "Others" ? Colors.white : Colors.black,
                     icon: FontAwesomeIcons.listDots,
                     text: "Others",
                     onPressed: () {
                       setState(() {
+                        type = "Others";
                         showOthersInput = !showOthersInput;
                       });
                       // print("Others");
@@ -118,7 +152,12 @@ class _TypeOfEventState extends State<TypeOfEvent> {
                     margin: EdgeInsets.only(top: 50.h),
                     child: MyIconButton(
                         onPressed: () => {
-                              Navigator.pushNamed(context, "/fillEventDetails"),
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        FillEventDetails(type),
+                                  ))
                             },
                         icon: FontAwesomeIcons.arrowRight)),
               ),
@@ -129,31 +168,36 @@ class _TypeOfEventState extends State<TypeOfEvent> {
     );
   }
 }
-
-
 class TypeOfEventCard extends StatelessWidget {
+  Color contentColor;
+  Color backgroundColor;
   IconData icon;
   Function onPressed;
   String text;
   TypeOfEventCard(
-      {required this.icon, required this.text, required this.onPressed});
-
+      {required this.icon,
+      required this.text,
+      required this.onPressed,
+      this.contentColor = Colors.white,
+      this.backgroundColor = Colors.black});
   @override
   Widget build(BuildContext context) {
     return NeumorphicButton(
-      onPressed: () => onPressed(),
+      onPressed: () {
+        onPressed();
+      },
       style: NeumorphicStyle(
-        shadowDarkColor: Colors.white,
-        shadowLightColor: Colors.white,
+        shadowDarkColor: contentColor,
+        shadowLightColor: contentColor,
         depth: 1,
-        color: Colors.black,
+        color: backgroundColor,
         shape: NeumorphicShape.flat,
         boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
       ),
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         FaIcon(
           icon,
-          color: Colors.white,
+          color: contentColor,
           size: 50,
         ),
         SizedBox(
@@ -162,7 +206,7 @@ class TypeOfEventCard extends StatelessWidget {
         Text(
           '$text',
           style: textStyle.copyWith(
-              fontSize: 20, color: Colors.white, fontWeight: FontWeight.w900),
+              fontSize: 20, color: contentColor, fontWeight: FontWeight.w900),
         )
       ]),
     );

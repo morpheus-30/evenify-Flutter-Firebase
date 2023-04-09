@@ -3,9 +3,11 @@ import "package:temp_flutter_proj/constants.dart";
 
 class NeumorphicTextField extends StatelessWidget {
   String hintText;
+  Function onPressed;
   int maxLength;
+
   final type;
-  NeumorphicTextField({required this.hintText,this.type,this.maxLength=20});
+  NeumorphicTextField({required this.hintText,this.type,this.maxLength=20,required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +21,9 @@ class NeumorphicTextField extends StatelessWidget {
         keyboardType: type==null?TextInputType.text:type,
         style: textStyle.copyWith(color: Colors.white),
         decoration: loginInputDecoration.copyWith(hintText: "$hintText"),
-        onChanged: (value) {},
+        onChanged: (value) {
+          onPressed(value);
+        },
       ),
     );
   }

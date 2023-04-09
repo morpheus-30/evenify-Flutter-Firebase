@@ -5,6 +5,7 @@ import 'package:temp_flutter_proj/constants.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sizer/sizer.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -14,6 +15,8 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   bool _load = false;
   FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +148,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               final newUser =
                                   await _auth.createUserWithEmailAndPassword(
                                       email: email, password: password);
-
+                              
                               if (newUser != null) {
                                 Navigator.pushReplacementNamed(context, "/main");
                               }
@@ -155,6 +158,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               });
                               print(e);
                             }
+                            await _firestore.collection("Users").doc(email).set({});
+                            await _firestore.collection("Users").doc(email).collection("MyEvents").doc().set({});
+                            await _firestore.collection("Users").doc(email).collection("EventsInvited").doc().set({});
                           },
                           child: Text(
                             "Register",

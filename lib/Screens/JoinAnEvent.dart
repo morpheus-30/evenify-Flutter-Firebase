@@ -2,16 +2,23 @@ import 'package:flutter/services.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:sizer/sizer.dart';
 import 'package:temp_flutter_proj/constants.dart';
-import 'package:temp_flutter_proj/components/NeumorphicTextField.dart';
+// import 'package:temp_flutter_proj/components/NeumorphicTextField.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class JoinAnEvent extends StatefulWidget {
   @override
   State<JoinAnEvent> createState() => _JoinAnEventState();
 }
 
+String id = "";
+
 class _JoinAnEventState extends State<JoinAnEvent> {
   bool _isButtonDisabled = false;
+  final _firestore = FirebaseFirestore.instance;
+  User LoggedInUser = FirebaseAuth.instance.currentUser!;
+  final _auth = FirebaseAuth.instance;
   List<Widget> columnWidgets = [
     Center(
       child: SizedBox(
@@ -33,7 +40,7 @@ class _JoinAnEventState extends State<JoinAnEvent> {
                   textStyle.copyWith(color: Colors.white, fontSize: 20.sp),
             ),
             onChanged: (value) {
-              print(value);
+              id = value;
             },
           ),
         ),
@@ -57,7 +64,7 @@ class _JoinAnEventState extends State<JoinAnEvent> {
               child: NeumorphicButton(
                 padding: EdgeInsets.all(5),
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pushReplacementNamed(context,"/main");
                 },
                 style: NeumorphicStyle(
                   depth: 2,
@@ -95,7 +102,7 @@ class _JoinAnEventState extends State<JoinAnEvent> {
               ),
               onPressed: _isButtonDisabled
                   ? null
-                  : () {
+                  : () async {
                       setState(() {
                         columnWidgets.add(Container(
                           margin: EdgeInsets.only(bottom: 3.h),
@@ -106,12 +113,47 @@ class _JoinAnEventState extends State<JoinAnEvent> {
                         ));
                         _isButtonDisabled = true;
                       });
+                      // print(LoggedInUser.email);
+                      var EventReference =
+                          await _firestore.collection("Events").doc(id).get();
+                      if (EventReference.exists&&LoggedInUser.email!=EventReference.data()!["email"]) {
+                        var EventDetails = EventReference.data();
+                        // print(EventDetails);
+                        await _firestore
+                            .collection("Users")
+                            .doc(LoggedInUser.email)
+                            .collection("EventsInvited")
+                            .doc(id)
+                            .set(EventDetails!);
+                      } else {
+                        print("nahi h bc");
+                      }
                     },
               child: Text(
                 "Join",
                 style: textStyle.copyWith(color: Colors.white, fontSize: 20.sp),
               ),
-            )
+            ),
+            SizedBox(
+              height: 3.h,
+            ),
+            NeumorphicButton(
+              style: NeumorphicStyle(
+                depth: 1,
+                color: Colors.black,
+                shadowDarkColor: Colors.white,
+                shadowLightColor: Colors.white,
+              ),
+              onPressed: (){
+                Navigator.pushReplacementNamed(context, "/main");
+              }
+                    ,
+              child: Text(
+                "Main Screen",
+                style: textStyle.copyWith(color: Colors.white, fontSize: 20.sp),
+              ),
+            ),
+            
           ],
         ));
   }

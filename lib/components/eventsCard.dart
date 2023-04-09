@@ -74,7 +74,7 @@ class EventsCard extends StatelessWidget {
                           color: Colors.white,
                         ),
                         Text(
-                          '$place',
+                          place.length > 10 ? place.substring(0, 10) + "..." : place,
                           style: textStyle.copyWith(fontSize: 15.sp,color: Colors.white),
                         )
                       ],

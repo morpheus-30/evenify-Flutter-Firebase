@@ -1,29 +1,26 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-import 'dart:ffi';
+// import 'dart:ffi';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 import 'package:temp_flutter_proj/constants.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:temp_flutter_proj/components/eventsCard.dart';
 import 'package:sizer/sizer.dart';
-import 'package:temp_flutter_proj/partilyContacts.dart';
-import 'package:permission_handler/permission_handler.dart';
-
+// import 'package:temp_flutter_proj/partilyContacts.dart';
+// import 'package:permission_handler/permission_handler.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'EventDetailsScreen.dart';
 class EventsScreen extends StatefulWidget {
   @override
   State<EventsScreen> createState() => _EventsScreenState();
 }
-
 class _EventsScreenState extends State<EventsScreen> {
+  List Events = [];
   bool _addListWidget = false;
   bool _accountListWidget = false;
   @override
-  void initState() {
-    super.initState();
-    getCurrentUser();
-  }
-
+  final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
   late User loggedinUser;
   void getCurrentUser() {
@@ -36,7 +33,40 @@ class _EventsScreenState extends State<EventsScreen> {
       print(e);
     }
   }
-
+  void LoadList(){
+    setState(() {
+      null;
+    });
+  }
+  void InitializeEvents() async {
+    var EventsReference = await _firestore
+        .collection("Users")
+        .doc(loggedinUser.email)
+        .collection("EventsInvited")
+        .get();
+    List EventsDocs = EventsReference.docs;
+    // for (dynamic i in EventsDocs) {
+    //   print(i.data());
+    // }
+    // print(EventsDocs.length);
+    for (int i = 0; i < EventsDocs.length; i++) {
+      // if (EventsDocs[i].data != null) {
+      //   Events.add(EventsDocs[i].data());
+      // }
+      if (!Events.contains(EventsDocs[i].data())) {
+        setState(() {
+          Events.add(EventsDocs[i].data());
+        });
+      }
+    }
+    Events.removeAt(Events.length - 1);
+    // print(Events);
+  }
+  void initState() {
+    super.initState();
+    getCurrentUser();
+    InitializeEvents();
+  }
   @override
   Widget build(BuildContext context) {
     bool _load = false;
@@ -124,22 +154,29 @@ class _EventsScreenState extends State<EventsScreen> {
                   ),
                 ),
                 Expanded(
-                  child: ListView.builder(
-                    padding: EdgeInsets.all(5),
-                    itemCount: 10,
-                    // padding: EdgeInsets.only(top: 30.h),
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      return EventsCard(
-                        timeNdate: "2pm Today",
-                        place: "Mere Ghar",
-                        title: "Josh's Birthday Party",
-                        onTap: () {
-                          Navigator.pushNamed(context, "/eventDetails");
-                        },
-                      );
-                    },
-                  ),
+                  child: Events.length == 0
+                      ? Container()
+                      : SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: ListView.builder(
+                            padding: EdgeInsets.all(5),
+                            itemCount: Events.length,
+                            // padding: EdgeInsets.only(top: 30.h),
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              return EventsCard(
+                                timeNdate: Events[index]["eventTime"] +
+                                    " " +
+                                    Events[index]["eventDate"],
+                                place: Events[index]["eventLocation"],
+                                title: Events[index]["eventName"],
+                                onTap: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => EventDetailsScreen(EventDetails: Events[index],)));
+                                },
+                              );
+                            },
+                          ),
+                      ),
                 ),
               ],
             ),
@@ -184,7 +221,7 @@ class _EventsScreenState extends State<EventsScreen> {
                                 setState(() {
                                   _addListWidget = false;
                                 });
-                                Navigator.pushNamed(context, "/joinAnEvent");
+                                Navigator.pushReplacementNamed(context, "/joinAnEvent");
                               }),
                               style: NeumorphicStyle(
                                   shadowDarkColor: Colors.white,
@@ -211,10 +248,20 @@ class _EventsScreenState extends State<EventsScreen> {
                   alignment: Alignment.bottomRight,
                   child: NeumorphicButton(
                     margin: EdgeInsets.all(25),
-                    onPressed: () {
+                    onPressed: () async {
                       setState(() {
                         _addListWidget = !_addListWidget;
                       });
+                      // for (dynamic i in Events) {
+                      //   print(i);
+                      // }
+                      // for(int i=0;i<Events.length;i++){
+                      //   if(Events[i]=={}){
+                      //     Events.rem
+                      //   }
+                      // }
+                      // Events.removeAt(Events.length - 1);
+                      // print(Events);
                       // setState(() {
                       //   _load = true;
                       // });
@@ -282,7 +329,9 @@ class _EventsScreenState extends State<EventsScreen> {
                             height: 2.h,
                           ),
                           NeumorphicButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.pushNamed(context, "/myEvents");
+                            },
                             style: NeumorphicStyle(
                                 shadowDarkColor: Colors.white,
                                 color: Colors.white,

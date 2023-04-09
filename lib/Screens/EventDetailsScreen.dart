@@ -5,7 +5,10 @@ import 'package:temp_flutter_proj/constants.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:external_app_launcher/external_app_launcher.dart';
 import 'package:temp_flutter_proj/mapUtils.dart';
+
 class EventDetailsScreen extends StatelessWidget {
+  EventDetailsScreen({required this.EventDetails});
+  Map<String, dynamic> EventDetails;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,7 +20,7 @@ class EventDetailsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                "Josh's Birthday Party",
+                "${EventDetails["eventName"]}",
                 textAlign: TextAlign.center,
                 style: textStyle.copyWith(
                   color: Colors.white,
@@ -35,13 +38,14 @@ class EventDetailsScreen extends StatelessWidget {
                     depth: 1,
                     shadowDarkColor: Colors.white),
                 child: SizedBox(
-                  height: 35.h,
+                  height: 25.h,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconTray(
                         icon: FontAwesomeIcons.calendar,
-                        text: "2pm Today",
+                        text:
+                            "${EventDetails["eventTime"]} on ${EventDetails["eventDate"]}",
                         onIconTap: () async {
                           await LaunchApp.openApp(
                               androidPackageName:
@@ -50,37 +54,37 @@ class EventDetailsScreen extends StatelessWidget {
                       ),
                       IconTray(
                         icon: FontAwesomeIcons.locationArrow,
-                        text: "Mere Ghar",
+                        text:
+                            "${EventDetails["eventLocation"].length > 10 ? EventDetails["eventLocation"].substring(0, 10) + "..." : EventDetails["eventLocation"]}",
                         onIconTap: () async {
-                          MapUtils.openMap(
-                              "1012 sector 2 shastri nagar meerut");
+                          MapUtils.openMap(EventDetails["eventLocation"]);
                         },
                       ),
                       IconTray(
                         onIconTap: () async {
-                          final phoneNumber = '7617439147';
+                          final phoneNumber = '${EventDetails["phoneNumber"]}';
                           final url = 'tel:$phoneNumber';
                           if (await canLaunchUrlString(url)) {
                             await launchUrlString(url);
                           }
                         },
                         icon: FontAwesomeIcons.phone,
-                        text: "7617439147",
+                        text: "${EventDetails["phoneNumber"]}",
                       ),
-                      SizedBox(
-                        height: 3.h,
-                      ),
-                      SizedBox(
-                        child: NeumorphicButton(
-                          style: NeumorphicStyle(color: Colors.white, depth: 1),
-                          onPressed: () {},
-                          child: Text(
-                            "See who's on the guest list",
-                            style: textStyle,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
+                      // SizedBox(
+                      //   height: 3.h,
+                      // ),
+                      // SizedBox(
+                      //   child: NeumorphicButton(
+                      //     style: NeumorphicStyle(color: Colors.white, depth: 1),
+                      //     onPressed: () {},
+                      //     child: Text(
+                      //       "See who's on the guest list",
+                      //       style: textStyle,
+                      //       textAlign: TextAlign.center,
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -93,7 +97,9 @@ class EventDetailsScreen extends StatelessWidget {
                 children: [
                   NeumorphicButton(
                     style: NeumorphicStyle(color: Colors.white, depth: 1),
-                    onPressed: () {},
+                    onPressed: () {
+                      print(EventDetails);
+                    },
                     child: Text(
                       "I'll be there!",
                       style: textStyle.copyWith(color: Colors.black),
@@ -132,6 +138,7 @@ class EventDetailsScreen extends StatelessWidget {
     );
   }
 }
+
 class IconTray extends StatelessWidget {
   IconTray({required this.icon, required this.text, required this.onIconTap});
   String text;
